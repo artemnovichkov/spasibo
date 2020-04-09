@@ -2,13 +2,19 @@
 //  Copyright © 2020 Artem Novichkov. All rights reserved.
 //
 
-struct Dependency: CustomStringConvertible {
+final class Dependency: CustomStringConvertible {
 
     let owner: String
     let name: String
-    let fundings: [Funding]
+    var fundings: [Funding]
 
     var description: String {
         owner + "/" + name
+    }
+
+    init(owner: String, name: String, fundings: [Funding] = []) {
+        self.owner = owner
+        self.name = name
+        self.fundings = fundings
     }
 }

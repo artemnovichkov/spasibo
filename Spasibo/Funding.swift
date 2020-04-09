@@ -32,16 +32,16 @@ struct Funding: CustomStringConvertible {
         guard let platform = Platform(rawValue: key) else {
             return nil
         }
-        let values: [String]
-        if let test = value as? [String] {
-            values = test
+        let fundingValues: [String]
+        if let values = value as? [String] {
+            fundingValues = values
         }
-        else if let test = value as? String {
-            values = [test]
+        else if let value = value as? String {
+            fundingValues = [value]
         }
         else {
             return nil
         }
-        self.init(platform: platform, values: values)
+        self.init(platform: platform, values: fundingValues)
     }
 }

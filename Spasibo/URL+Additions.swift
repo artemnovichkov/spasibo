@@ -1,8 +1,4 @@
 //
-//  URL+Additions.swift
-//  Spasibo
-//
-//  Created by Artem Novichkov on 09.04.2020.
 //  Copyright © 2020 Artem Novichkov. All rights reserved.
 //
 

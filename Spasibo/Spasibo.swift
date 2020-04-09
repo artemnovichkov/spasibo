@@ -21,18 +21,30 @@ struct Spasibo: ParsableCommand {
     var path: String
 
     func run() throws {
-        let dependencies = try cartfileDependencies()
+        var dependencies = [Dependency]()
+        if let cartfileDependencies = try? makeCartfileDependencies() {
+            dependencies.append(contentsOf: cartfileDependencies)
+        }
+        if let packageDependencies = try? makePackageDependencies() {
+            dependencies.append(contentsOf: packageDependencies)
+        }
+
+        try addFundings(to: dependencies)
 
         if dependencies.isEmpty {
             throw Error.noDependencies
         }
 
-        if dependencies.allSatisfy({ $0.fundings.isEmpty }) {
+        let fundingDependencies = dependencies.filter { dependency in
+            dependency.fundings.isEmpty == false
+        }
+
+        if fundingDependencies.isEmpty {
             throw Error.noDependenciesWithFundings
         }
 
         guard let dependencyIndex = choose(prompt: "Select a dependency:",
-                                           options: dependencies.map(\.description)) else {
+                                           options: fundingDependencies.map(\.description)) else {
             throw Error.noDependenciesWithFundings
         }
         let dependency = dependencies[dependencyIndex]
@@ -51,31 +63,60 @@ struct Spasibo: ParsableCommand {
         }
         let source = funding.urls[sourceIndex]
         print(source)
-        if ask(prompt: "Want to open this donate page in your web browser? 🦄 (Y/n)") {
+        if ask(prompt: "Want to open this donate page in your web browser? (Y/n)") {
             NSWorkspace.shared.open(source)
         }
     }
 
     // MARK: - Private
 
-    private func cartfileDependencies() throws -> [Dependency] {
+    private func makeCartfileDependencies() throws -> [Dependency] {
         let projectDirectoryURL = URL(fileURLWithPath: path)
-        let carthfileURL = Cartfile.url(in: projectDirectoryURL)
-        let cartfile = try Cartfile.from(file: carthfileURL).get()
-        return try cartfile.dependencies.keys.compactMap { dependency -> Dependency? in
+        let cartfileURL = Cartfile.url(in: projectDirectoryURL)
+        let cartfile = try Cartfile.from(file: cartfileURL).get()
+        return cartfile.dependencies.keys.compactMap { dependency -> Dependency? in
             switch dependency {
                 case let .gitHub(_, repo):
-                    guard let fundingURL = URL.funding(owner: repo.owner, name: repo.name) else {
-                        return nil
-                    }
-                    let content = try String(contentsOf: fundingURL)
-                    let rawFundings = try Yams.load(yaml: content) as! [String: Any]
-                    let fundings = rawFundings.compactMap { key, value in
-                        Funding(key: key, value: value)
-                    }
-                    return Dependency(owner: repo.owner, name: repo.name, fundings: fundings)
+                    return Dependency(owner: repo.owner, name: repo.name)
                 case .git, .binary:
                     return nil
+            }
+        }
+    }
+
+    private func makePackageDependencies() throws -> [Dependency] {
+        let packageURL = URL(fileURLWithPath: path).appendingPathComponent("Package.swift")
+        let content = try String(contentsOf: packageURL)
+        let dataDetector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        let matches = dataDetector.matches(in: content, options: [], range: NSRange(location: 0, length: content.utf16.count))
+        let urls = matches.compactMap { match -> URL? in
+            guard let range = Range(match.range, in: content) else {
+                return nil
+            }
+            return URL(string: String(content[range]))
+        }
+        let dependencies = urls.compactMap { url -> Dependency? in
+            var pathComponents = url.deletingPathExtension().pathComponents
+            pathComponents.removeFirst()
+            guard pathComponents.count == 2 else {
+                return nil
+            }
+            return Dependency(owner: pathComponents[0], name: pathComponents[1])
+        }
+        return dependencies
+    }
+
+    private func addFundings(to dependencies: [Dependency]) throws {
+        for dependency in dependencies {
+            guard let fundingURL = URL.funding(owner: dependency.owner, name: dependency.name) else {
+                continue
+            }
+            let content = try String(contentsOf: fundingURL)
+            guard let rawFundings = try Yams.load(yaml: content) as? [String: Any] else {
+                continue
+            }
+            dependency.fundings = rawFundings.compactMap { key, value in
+                Funding(key: key, value: value)
             }
         }
     }
