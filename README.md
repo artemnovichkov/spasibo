@@ -33,12 +33,15 @@ OPTIONS:
   -h, --help              Show help information.
 ```
 
-
 ## Installing
 
 - [Homebrew](https://brew.sh) (recommended): `brew install artemnovichkov/projects/spasibo`
 - [Mint](https://github.com/yonaskolb/Mint): `mint run artemnovichkov/spasibo`
 - From source: `make install`
+
+## Todo
+
+- [ ] Add Cocoapods support
 
 ## Author
 
