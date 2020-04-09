@@ -8,6 +8,7 @@
         <img src="https://img.shields.io/badge/twitter-@iosartem-blue.svg?style=flat" alt="Twitter: @iosartem" />
     </a>
 </p>
+
 > 'Spasibo' means 'thank you' in Russian.
 
 **Spasibo** is a simple command-line tool to supporting open-source frameworks.
