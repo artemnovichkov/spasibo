@@ -13,8 +13,8 @@ struct Spasibo: ParsableCommand {
     enum Error: Swift.Error {
         case noDependencies
         case noDependenciesWithFundings
-        case noFundings
-        case noSources
+        case noFundings(Dependency)
+        case noSources(Funding)
     }
 
     @Option(name: [.short, .long], default: FileManager.default.currentDirectoryPath, help: "The path to project directory.")
@@ -52,14 +52,14 @@ struct Spasibo: ParsableCommand {
         guard let fundingIndex = choose(prompt: "Select a platform:",
                                         options: dependency.fundings.map(\.description),
                                         selectFirst: true) else {
-            throw Error.noFundings
+            throw Error.noFundings(dependency)
         }
         let funding = dependency.fundings[fundingIndex]
 
         guard let sourceIndex = choose(prompt: "Select a source:",
                                        options: funding.urls.map(\.description),
                                        selectFirst: true) else {
-            throw Error.noSources
+            throw Error.noSources(funding)
         }
         let source = funding.urls[sourceIndex]
         print(source)
@@ -118,6 +118,22 @@ struct Spasibo: ParsableCommand {
             dependency.fundings = rawFundings.compactMap { key, value in
                 Funding(key: key, value: value)
             }
+        }
+    }
+}
+
+extension Spasibo.Error: CustomStringConvertible {
+
+    var description: String {
+        switch self {
+            case .noDependencies:
+                return "There are no dependencies."
+            case .noDependenciesWithFundings:
+                return "There are no dependencies with funding."
+            case .noFundings(let dependency):
+                return "There are no fundings for \(dependency)."
+            case .noSources(let funding):
+                return "There are no sources for \(funding)."
         }
     }
 }
