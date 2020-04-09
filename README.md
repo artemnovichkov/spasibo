@@ -8,6 +8,9 @@
         <img src="https://img.shields.io/badge/twitter-@iosartem-blue.svg?style=flat" alt="Twitter: @iosartem" />
     </a>
 </p>
+> 'Spasibo' means 'thank you' in Russian.
+
+**Spasibo** is a simple command-line tool to supporting open-source frameworks.
 
 ## Features
 
@@ -16,7 +19,7 @@
 
 ## Using
 
-Run `spasibo` in project folder and see which of your dependencies support donations. Spasibo scans *Cartfile* and *Package.swift* files, checks that dependencies have *FUNDING.yml* and displays a list of funding sources.
+Run `spasibo` in project folder and see which of your dependencies support donations. Spasibo scans *Cartfile* and *Package.swift* files, checks that dependencies have [*FUNDING.yml*](https://help.github.com/en/github/administering-a-repository/displaying-a-sponsor-button-in-your-repository#about-funding-files) and displays a list of funding sources.
 
 
 Run `spasibo --help` to see available commands:
