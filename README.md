@@ -2,14 +2,12 @@
   <img src=".github/Logo.png" width="480" max-width="90%" alt="spasibo" />
 </p>
 
-```html
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-5.1-orange.svg" />
     <a href="https://twitter.com/iosartem">
         <img src="https://img.shields.io/badge/twitter-@iosartem-blue.svg?style=flat" alt="Twitter: @iosartem" />
     </a>
 </p>
-```
 
 ## Features
 
