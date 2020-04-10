@@ -3,7 +3,13 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/Swift-5.1-orange.svg" />
+    <img src="https://img.shields.io/badge/Swift-5.2-orange.svg" />
+  <a href="https://brew.sh">
+    <img src="https://img.shields.io/badge/homebrew-compatible-brightgreen.svg?style=flat" alt="Homebrew" />
+  </a>
+    <a href="https://github.com/yonaskolb/Mint">
+    <img src="https://img.shields.io/badge/mint-compatible-brightgreen.svg?style=flat" alt="Mint" />
+  </a>
     <a href="https://twitter.com/iosartem">
         <img src="https://img.shields.io/badge/twitter-@iosartem-blue.svg?style=flat" alt="Twitter: @iosartem" />
     </a>
