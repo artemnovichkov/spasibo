@@ -1,15 +1,16 @@
 prefix ?= /usr/local
 bindir = $(prefix)/bin
-libdir = $(prefix)/lib
+binary ?= spasibo
+release_binary?=.build/release/Spasibo
 
 build:
 	swift build -c release --disable-sandbox
 
 install: build
-	install ".build/release/spasibo" "$(bindir)"
+	cp -f $(release_binary) $(bindir)/$(binary)
 
 uninstall:
-	rm -rf "$(bindir)/spasibo"
+	rm -rf "$(bindir)/$(binary)"
 
 clean:
 	rm -rf .build
