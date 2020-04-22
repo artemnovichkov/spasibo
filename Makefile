@@ -7,6 +7,7 @@ build:
 	swift build -c release --disable-sandbox
 
 install: build
+	mkdir -p $(bindir)
 	cp -f $(release_binary) $(bindir)/$(binary)
 
 uninstall:
