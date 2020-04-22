@@ -23,6 +23,7 @@
 ## Features
 
 - Based on Github Sponsors
+- [Community Health files](https://help.github.com/en/github/building-a-strong-community/creating-a-default-community-health-file) support
 - Carthage and Swift Package Manager support
 
 ## Using
