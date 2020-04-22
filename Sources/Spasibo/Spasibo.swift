@@ -29,11 +29,11 @@ struct Spasibo: ParsableCommand {
             dependencies.append(contentsOf: packageDependencies)
         }
 
-        try addFundings(to: dependencies)
-
         if dependencies.isEmpty {
             throw Error.noDependencies
         }
+
+        try addFundings(to: dependencies)
 
         let fundingDependencies = dependencies.filter { dependency in
             dependency.fundings.isEmpty == false
@@ -108,16 +108,38 @@ struct Spasibo: ParsableCommand {
 
     private func addFundings(to dependencies: [Dependency]) throws {
         for dependency in dependencies {
-            guard let fundingURL = URL.funding(owner: dependency.owner, name: dependency.name) else {
-                continue
-            }
-            let content = try String(contentsOf: fundingURL)
-            guard let rawFundings = try Yams.load(yaml: content) as? [String: Any] else {
-                continue
-            }
-            dependency.fundings = rawFundings.compactMap { key, value in
-                Funding(key: key, value: value)
-            }
+            try addFunding(to: dependency)
+        }
+    }
+
+    private func addFunding(to dependency: Dependency) throws {
+        try addDirectFunding(to: dependency)
+        if dependency.fundings.isEmpty {
+            try addHealthFunding(to: dependency)
+        }
+    }
+
+    private func addDirectFunding(to dependency: Dependency) throws {
+        guard let fundingURL = URL.funding(owner: dependency.owner, name: dependency.name) else {
+            return
+        }
+        dependency.fundings = try fetchFundings(from: fundingURL)
+    }
+
+    private func addHealthFunding(to dependency: Dependency) throws {
+        guard let fundingURL = URL.healthFunding(owner: dependency.owner) else {
+            return
+        }
+        dependency.fundings = try fetchFundings(from: fundingURL)
+    }
+
+    private func fetchFundings(from url: URL) throws -> [Funding] {
+        let content = try String(contentsOf: url)
+        guard let rawFundings = try Yams.load(yaml: content) as? [String: Any] else {
+            return []
+        }
+        return rawFundings.compactMap { key, value in
+            Funding(key: key, value: value)
         }
     }
 }
