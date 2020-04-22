@@ -13,4 +13,12 @@ extension URL {
         components.path = "/\(owner)/\(name)/master/.github/FUNDING.yml"
         return components.url
     }
+
+    static func healthFunding(owner: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "raw.githubusercontent.com"
+        components.path = "/\(owner)/.github/master/FUNDING.yml"
+        return components.url
+    }
 }
