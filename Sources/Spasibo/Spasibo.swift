@@ -29,11 +29,11 @@ struct Spasibo: ParsableCommand {
             dependencies.append(contentsOf: packageDependencies)
         }
 
-        try addFundings(to: dependencies)
-
         if dependencies.isEmpty {
             throw Error.noDependencies
         }
+
+        try addFundings(to: dependencies)
 
         let fundingDependencies = dependencies.filter { dependency in
             dependency.fundings.isEmpty == false
