@@ -1,6 +1,7 @@
 <p align="center">
-  <img src=".github/Logo.png" width="480" max-width="90%" alt="spasibo" />
+  <img src=".github/Logo.png" alt="spasibo" />
 </p>
+
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-5.2-orange.svg" />
