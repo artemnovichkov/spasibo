@@ -51,6 +51,18 @@ OPTIONS:
 - [Mint](https://github.com/yonaskolb/Mint): `mint run artemnovichkov/spasibo`
 - From source: `make install`
 
+## Known issues
+
+With some environments Spasibo may have a problems with Cocoapods. If you see `pod: command not found` error, try to set PATH environment with you pod path. To do it, run:
+
+```bash
+$ which pod
+path/to/your/pod
+$ PATH=path/to/your/pod spasibo
+```
+
+If you know how to fix it properly, feel free to create a pull request or an issue with suggestion.
+
 ## Author
 
 Artem Novichkov, novichkoff93@gmail.com
