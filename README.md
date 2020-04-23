@@ -53,7 +53,7 @@ OPTIONS:
 
 ## Known issues
 
-With some environments Spasibo may have a problems with Cocoapods. If you see `pod: command not found` error, try to set PATH environment with you pod path. To do it, run:
+With some environments Spasibo may have a problems with Cocoapods. If you see `Fail to run pod spec cat` error, try to set PATH environment with you pod path. To do it, run:
 
 ```bash
 $ which pod

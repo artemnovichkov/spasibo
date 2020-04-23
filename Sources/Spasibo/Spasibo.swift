@@ -40,8 +40,22 @@ struct Spasibo: ParsableCommand {
             dependencies.append(contentsOf: packageDependencies)
         }
         execute(verbose: verbose, status: "⚙️ Find Podfile dependencies") {
-            let podfileDependencies = try makePodfileDependencies()
-            dependencies.append(contentsOf: podfileDependencies)
+            do {
+                let podfileDependencies = try makePodfileDependencies()
+                dependencies.append(contentsOf: podfileDependencies)
+            }
+            catch let Error.podspecCat(status: status, output: output, error: error) {
+                print("""
+                      Fail to run pod spec cat:
+                      Status: \(status)
+                      Output: \(output)
+                      Error: \(error)
+                      """)
+                return
+            }
+            catch {
+                throw error
+            }
         }
 
         if dependencies.isEmpty {
