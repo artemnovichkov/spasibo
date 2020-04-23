@@ -8,22 +8,6 @@ import CarthageKit
 import class AppKit.NSWorkspace
 import Yams
 
-private extension Data {
-    func shellOutput() -> String {
-        guard let output = String(data: self, encoding: .utf8) else {
-            return ""
-        }
-
-        guard !output.hasSuffix("\n") else {
-            let endIndex = output.index(before: output.endIndex)
-            return String(output[..<endIndex])
-        }
-
-        return output
-
-    }
-}
-
 struct Spasibo: ParsableCommand {
 
     enum Error: Swift.Error {
@@ -250,20 +234,6 @@ extension Spasibo.Error: CustomStringConvertible {
                        Fail to decode podspec
                        Output: "\(output)"
                        """
-        }
-    }
-}
-
-func execute(verbose: Bool, status: String? = nil, handler: () throws -> Void) {
-    do {
-        if verbose, let status = status {
-            print(status)
-        }
-        try handler()
-    }
-    catch {
-        if verbose {
-            print(error)
         }
     }
 }
