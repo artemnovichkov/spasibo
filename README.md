@@ -24,20 +24,24 @@
 
 - Based on Github Sponsors
 - [Community Health files](https://help.github.com/en/github/building-a-strong-community/creating-a-default-community-health-file) support
-- Carthage and Swift Package Manager support
+- Cocoapods, Carthage, and Swift Package Manager support
 
 ## Using
 
-Run `spasibo` in project folder and see which of your dependencies support donations. Spasibo scans *Cartfile* and *Package.swift* files, checks that dependencies have [*FUNDING.yml*](https://help.github.com/en/github/administering-a-repository/displaying-a-sponsor-button-in-your-repository#about-funding-files) and displays a list of funding sources.
+Run `spasibo` in project folder and see which of your dependencies support donations. Spasibo scans *Podfile.lock*, *Cartfile* and *Package.swift* files, checks that dependencies have [*FUNDING.yml*](https://help.github.com/en/github/administering-a-repository/displaying-a-sponsor-button-in-your-repository#about-funding-files) and displays a list of funding sources.
 
 
 Run `spasibo --help` to see available commands:
 
 ```bash
-USAGE: spasibo [--path <path>]
+OVERVIEW: 🙏 Support your favourite open source projects
+
+USAGE: spasibo [--path <path>] [--verbose]
 
 OPTIONS:
-  -p, --path <path>       The path to project directory.
+  -p, --path <path>       The path to project directory. (default: <current directory>)
+  -v, --verbose           Print status updates while running. 
+  --version               Show the version.
   -h, --help              Show help information.
 ```
 
@@ -47,9 +51,17 @@ OPTIONS:
 - [Mint](https://github.com/yonaskolb/Mint): `mint run artemnovichkov/spasibo`
 - From source: `make install`
 
-## Todo
+## Known issues
 
-- [ ] Add Cocoapods support
+With some environments Spasibo may have a problems with Cocoapods. If you see `Fail to run pod spec cat` error, try to set PATH environment with you pod path. To do it, run:
+
+```bash
+$ which pod
+path/to/your/pod
+$ PATH=path/to/your/pod spasibo
+```
+
+If you know how to fix it properly, feel free to create a pull request or an issue with suggestion.
 
 ## Author
 

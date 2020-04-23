@@ -15,18 +15,47 @@ struct Spasibo: ParsableCommand {
         case noDependenciesWithFundings
         case noFundings(Dependency)
         case noSources(Funding)
+        case podspecCat(status: Int32, output: String, error: String)
+        case podspecDecode(output: String)
     }
 
-    @Option(name: [.short, .long], default: FileManager.default.currentDirectoryPath, help: "The path to project directory.")
+    @Option(name: .shortAndLong, default: FileManager.default.currentDirectoryPath, help: "The path to project directory.")
     var path: String
 
+    @Flag(name: .shortAndLong, help: "Print status updates while running.")
+    var verbose: Bool
+
+    static let configuration: CommandConfiguration = .init(abstract: "🙏 Support your favourite open source projects",
+                                                           version: "0.3")
+
     func run() throws {
+        print("Check dependencies...")
         var dependencies = [Dependency]()
-        if let cartfileDependencies = try? makeCartfileDependencies() {
+        execute(verbose: verbose, status: "⚙️ Find Cartfile dependencies") {
+            let cartfileDependencies = try makeCartfileDependencies()
             dependencies.append(contentsOf: cartfileDependencies)
         }
-        if let packageDependencies = try? makePackageDependencies() {
+        execute(verbose: verbose, status: "⚙️ Find Package.swift dependencies") {
+            let packageDependencies = try makePackageDependencies()
             dependencies.append(contentsOf: packageDependencies)
+        }
+        execute(verbose: verbose, status: "⚙️ Find Podfile dependencies") {
+            do {
+                let podfileDependencies = try makePodfileDependencies()
+                dependencies.append(contentsOf: podfileDependencies)
+            }
+            catch let Error.podspecCat(status: status, output: output, error: error) {
+                print("""
+                      Fail to run pod spec cat:
+                      Status: \(status)
+                      Output: \(output)
+                      Error: \(error)
+                      """)
+                return
+            }
+            catch {
+                throw error
+            }
         }
 
         if dependencies.isEmpty {
@@ -95,15 +124,26 @@ struct Spasibo: ParsableCommand {
             }
             return URL(string: String(content[range]))
         }
-        let dependencies = urls.compactMap { url -> Dependency? in
-            var pathComponents = url.deletingPathExtension().pathComponents
-            pathComponents.removeFirst()
-            guard pathComponents.count == 2 else {
+        let dependencies = urls.compactMap(Dependency.init)
+        return dependencies
+    }
+
+    private func makePodfileDependencies() throws -> [Dependency] {
+        let podfileLockURL = URL(fileURLWithPath: path).appendingPathComponent("Podfile.lock")
+        let content = try String(contentsOf: podfileLockURL)
+        guard let podfile = try Yams.load(yaml: content) as? [String: Any] else {
+            return []
+        }
+        guard let dependencies = podfile["DEPENDENCIES"] as? [String] else {
+            return []
+        }
+        let dependencyNames = dependencies.compactMap { dependency -> String? in
+            guard let name = dependency.split(separator: " ").first else {
                 return nil
             }
-            return Dependency(owner: pathComponents[0], name: pathComponents[1])
+            return String(name)
         }
-        return dependencies
+        return try dependencyNames.compactMap(fetchPodspecDependency)
     }
 
     private func addFundings(to dependencies: [Dependency]) throws {
@@ -135,12 +175,53 @@ struct Spasibo: ParsableCommand {
 
     private func fetchFundings(from url: URL) throws -> [Funding] {
         let content = try String(contentsOf: url)
-        guard let rawFundings = try Yams.load(yaml: content) as? [String: Any] else {
+        guard let rawFundings = try? Yams.load(yaml: content) as? [String: Any] else {
             return []
         }
         return rawFundings.compactMap { key, value in
             Funding(key: key, value: value)
         }
+    }
+
+    func fetchPodspecDependency(withName name: String) throws -> Dependency? {
+        let process = Process()
+        process.launchPath = "/bin/sh"
+        process.currentDirectoryPath = NSHomeDirectory()
+        process.arguments = ["pod", "spec", "cat", name]
+        var environment = ["HOME": NSHomeDirectory(),
+                           "LANG": "en_GB.UTF-8"]
+        var path = "/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
+        if let envPath = ProcessInfo.processInfo.environment["PATH"] {
+            path += ":" + envPath
+        }
+        environment["PATH"] = path
+        process.environment = environment
+
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        try process.run()
+
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+
+        process.waitUntilExit()
+
+        let output = String(decoding: outputData, as: UTF8.self)
+        let error = String(decoding: errorData, as: UTF8.self)
+
+        if process.terminationStatus != 0 {
+            throw Error.podspecCat(status: process.terminationStatus, output: output, error: error)
+        }
+
+        guard let podspec = try? JSONDecoder().decode(Podspec.self, from: outputData) else {
+            throw Error.podspecDecode(output: output)
+        }
+
+        return Dependency(url: podspec.source.git)
     }
 }
 
@@ -156,6 +237,18 @@ extension Spasibo.Error: CustomStringConvertible {
                 return "There are no fundings for \(dependency)."
             case .noSources(let funding):
                 return "There are no sources for \(funding)."
+            case let .podspecCat(status: status, output: output, error: error):
+                return """
+                       Fail to get podspec
+                       Status: \(status)
+                       Output: "\(output)"
+                       Error: "\(error)"
+                       """
+            case .podspecDecode(output: let output):
+                return """
+                       Fail to decode podspec
+                       Output: "\(output)"
+                       """
         }
     }
 }

@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "Spasibo",
+    platforms: [.macOS(.v10_15)],
     products: [
         .executable(name: "Spasibo", targets: ["Spasibo"])
     ],
