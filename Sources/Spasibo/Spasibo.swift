@@ -26,7 +26,7 @@ struct Spasibo: ParsableCommand {
     var verbose: Bool
 
     static let configuration: CommandConfiguration = .init(abstract: "🙏 Support your favourite open source projects",
-                                                           version: "0.2")
+                                                           version: "0.3")
 
     func run() throws {
         print("Check dependencies...")
