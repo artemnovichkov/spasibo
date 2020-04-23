@@ -181,6 +181,7 @@ struct Spasibo: ParsableCommand {
             path += ":" + envPath
         }
         environment["PATH"] = path
+        process.environment = environment
 
         let outputPipe = Pipe()
         let errorPipe = Pipe()
