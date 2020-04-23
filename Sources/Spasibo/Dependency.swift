@@ -2,6 +2,8 @@
 //  Copyright © 2020 Artem Novichkov. All rights reserved.
 //
 
+import Foundation
+
 final class Dependency: CustomStringConvertible {
 
     let owner: String
@@ -16,5 +18,14 @@ final class Dependency: CustomStringConvertible {
         self.owner = owner
         self.name = name
         self.fundings = fundings
+    }
+
+    convenience init?(url: URL) {
+        var pathComponents = url.deletingPathExtension().pathComponents
+        pathComponents.removeFirst()
+        guard pathComponents.count == 2 else {
+            return nil
+        }
+        self.init(owner: pathComponents[0], name: pathComponents[1])
     }
 }
