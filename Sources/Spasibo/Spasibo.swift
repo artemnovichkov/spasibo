@@ -16,6 +16,7 @@ struct Spasibo: ParsableCommand {
         case noFundings(Dependency)
         case noSources(Funding)
         case podspecCat(status: Int32, output: String, error: String)
+        case noGitURL
         case podspecDecode(output: String)
     }
 
@@ -143,7 +144,18 @@ struct Spasibo: ParsableCommand {
             }
             return String(name)
         }
-        return try dependencyNames.compactMap(fetchPodspecDependency)
+        return dependencyNames.compactMap { name in
+            do {
+                let dependency = try fetchPodspecDependency(withName: name)
+                return dependency
+            }
+            catch {
+                if verbose {
+                    print(error)
+                }
+                return nil
+            }
+        }
     }
 
     private func addFundings(to dependencies: [Dependency]) throws {
@@ -221,7 +233,11 @@ struct Spasibo: ParsableCommand {
             throw Error.podspecDecode(output: output)
         }
 
-        return Dependency(url: podspec.source.git)
+        guard let git = podspec.source.git else {
+            throw Error.noGitURL
+        }
+
+        return Dependency(url: git)
     }
 }
 
@@ -244,6 +260,8 @@ extension Spasibo.Error: CustomStringConvertible {
                        Output: "\(output)"
                        Error: "\(error)"
                        """
+            case .noGitURL:
+                return "Dependency has no git url for sources."
             case .podspecDecode(output: let output):
                 return """
                        Fail to decode podspec

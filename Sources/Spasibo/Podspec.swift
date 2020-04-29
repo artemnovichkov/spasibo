@@ -8,7 +8,7 @@ struct Podspec: Decodable {
 
     struct Source: Decodable {
 
-        let git: URL
+        let git: URL?
     }
 
     let source: Source
