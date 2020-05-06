@@ -77,7 +77,7 @@ struct Spasibo: ParsableCommand {
                                            options: fundingDependencies.map(\.description)) else {
             throw Error.noDependenciesWithFundings
         }
-        let dependency = dependencies[dependencyIndex]
+        let dependency = fundingDependencies[dependencyIndex]
 
         guard let fundingIndex = choose(prompt: "Select a platform:",
                                         options: dependency.fundings.map(\.description),
